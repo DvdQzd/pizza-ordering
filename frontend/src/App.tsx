@@ -199,22 +199,23 @@ function App() {
   };
 
   return (
-    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '2rem', position: 'relative' }}>
+    <div className="app-container">
       <Toaster 
         position="top-right"
         toastOptions={{
           style: {
-            background: 'rgba(17, 17, 17, 0.9)',
+            background: 'rgba(10, 10, 10, 0.95)',
             color: '#ffffff',
-            border: '1px solid #333333',
+            border: '1px solid #222222',
             backdropFilter: 'blur(20px)',
-            fontFamily: 'Poppins, sans-serif',
+            fontFamily: 'Nunito, Poppins, sans-serif',
+            borderRadius: '20px',
           },
         }}
       />
       
       {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+      <div className="header">
         <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
           <Pizza className="w-14 h-14 glow" style={{ color: '#ff6b35' }} />
           Pizza Ordering System
@@ -223,28 +224,24 @@ function App() {
           color: 'var(--text-secondary)', 
           fontSize: '1.25rem', 
           marginTop: '1rem',
-          fontWeight: '300'
+          fontWeight: '400',
+          fontFamily: 'Nunito, Poppins, sans-serif'
         }}>
-          Order fresh pizzas with <span style={{ color: 'var(--text-accent)', fontWeight: '500' }}>real-time tracking</span>
+          Order fresh pizzas with <span style={{ color: 'var(--text-accent)', fontWeight: '600' }}>real-time tracking</span>
         </p>
       </div>
 
-      <div style={{ 
-        display: 'grid', 
-        gap: '2.5rem', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))',
-        marginBottom: '2rem'
-      }}>
+      <div className="main-grid">
         
         {/* Order Form */}
-        <div className="card">
+        <div className="card order-card">
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <ShoppingCart className="w-6 h-6" style={{ color: 'var(--accent-primary)' }} />
             Place Your Order
           </h2>
           
-          <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '1.5rem', alignItems: 'end', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <form onSubmit={handleSubmit} className="order-form">
+            <div className="form-group">
               <label>Quantity</label>
               <input
                 type="number"
@@ -256,15 +253,15 @@ function App() {
               />
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="form-group">
               <label>Estimated Time</label>
               <div className="time-display" style={{ 
                 padding: '1rem 1.25rem', 
-                borderRadius: '16px',
+                borderRadius: '20px',
                 fontSize: '1rem',
                 minWidth: '120px',
                 textAlign: 'center',
-                fontWeight: '600'
+                fontWeight: '700'
               }}>
                 {quantity * 2}s
               </div>
@@ -300,7 +297,7 @@ function App() {
         </div>
 
         {/* Order Tracking */}
-        <div className="card">
+        <div className="card tracking-card">
           <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Clock className="w-6 h-6" style={{ color: 'var(--accent-primary)' }} />
             Live Tracking
@@ -308,15 +305,10 @@ function App() {
           
           <div className="scroll-area">
             {orders.length === 0 ? (
-              <div style={{ 
-                textAlign: 'center', 
-                color: 'var(--text-muted)', 
-                padding: '3rem 1rem',
-                fontSize: '0.9rem'
-              }}>
+              <div className="empty-state">
                 <Pizza className="w-16 h-16 mx-auto mb-3 opacity-30" />
-                <p style={{ margin: 0, fontWeight: '300' }}>No orders yet</p>
-                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem' }}>Place your first order!</p>
+                <p style={{ margin: 0, fontWeight: '400', fontFamily: 'Nunito, Poppins, sans-serif' }}>No orders yet</p>
+                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', fontFamily: 'Nunito, Poppins, sans-serif' }}>Place your first order!</p>
               </div>
             ) : (
               orders.map((order) => (
@@ -329,16 +321,17 @@ function App() {
                       {getStatusIcon(order.status)}
                       <div>
                         <div style={{ 
-                          fontWeight: '600', 
+                          fontWeight: '700', 
                           fontSize: '0.9rem',
-                          fontFamily: 'JetBrains Mono, monospace'
+                          fontFamily: 'Nunito, JetBrains Mono, monospace'
                         }}>
                           #{order.orderId.slice(-8).toUpperCase()}
                         </div>
                         <div style={{ 
                           color: 'var(--text-secondary)', 
                           fontSize: '0.8rem',
-                          marginTop: '0.25rem'
+                          marginTop: '0.25rem',
+                          fontFamily: 'Nunito, Poppins, sans-serif'
                         }}>
                           {order.quantity} pizza{order.quantity !== 1 ? 's' : ''} • {getStatusText(order.status)}
                         </div>
@@ -349,16 +342,16 @@ function App() {
                       {order.status === 'completed' && order.completedAt ? (
                         <div style={{ 
                           color: 'var(--success)',
-                          fontFamily: 'JetBrains Mono, monospace',
-                          fontWeight: '600'
+                          fontFamily: 'Nunito, JetBrains Mono, monospace',
+                          fontWeight: '700'
                         }}>
                           {new Date(order.completedAt).toLocaleTimeString()}
                         </div>
                       ) : order.estimatedTime ? (
                         <div style={{ 
                           color: 'var(--text-accent)',
-                          fontFamily: 'JetBrains Mono, monospace',
-                          fontWeight: '600'
+                          fontFamily: 'Nunito, JetBrains Mono, monospace',
+                          fontWeight: '700'
                         }}>
                           ~{order.estimatedTime}s
                         </div>
@@ -370,80 +363,68 @@ function App() {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Notifications History - Full Width */}
-      <div className="card" style={{ width: '100%' }}>
-        <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Bell className="w-6 h-6" style={{ color: 'var(--accent-primary)' }} />
-          Notification History
-          {notifications.length > 0 && (
-            <span style={{ 
-              background: 'var(--accent-gradient)',
-              color: 'white',
-              borderRadius: '12px',
-              padding: '0.25rem 0.75rem',
-              fontSize: '0.75rem',
-              fontFamily: 'JetBrains Mono, monospace',
-              fontWeight: '600'
-            }}>
-              {notifications.length}
-            </span>
-          )}
-        </h2>
-        
-        <div className="scroll-area">
-          {notifications.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              color: 'var(--text-muted)', 
-              padding: '2rem',
-              fontSize: '0.9rem'
-            }}>
-              <Bell className="w-12 h-12 mx-auto mb-2 opacity-30" />
-              <p style={{ margin: 0, fontWeight: '300' }}>No notifications yet</p>
-            </div>
-          ) : (
-            notifications.map((notification, index) => (
-              <div 
-                key={index}
-                className={`notification-item ${
-                  notification.status === 'completed' ? 'notification-completed' : 'notification-received'
-                }`}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ 
-                      fontWeight: '600', 
-                      fontSize: '0.9rem',
-                      marginBottom: '0.25rem'
-                    }}>
-                      {notification.message || `Order ${notification.orderId.slice(-8).toUpperCase()}: ${notification.status}`}
-                    </div>
-                    {notification.quantity && (
+        {/* Notifications History */}
+        <div className="card notifications-card">
+          <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <Bell className="w-6 h-6" style={{ color: 'var(--accent-primary)' }} />
+            Notification History
+            {notifications.length > 0 && (
+              <span className="notification-badge">
+                {notifications.length}
+              </span>
+            )}
+          </h2>
+          
+          <div className="scroll-area">
+            {notifications.length === 0 ? (
+              <div className="empty-state">
+                <Bell className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p style={{ margin: 0, fontWeight: '400', fontFamily: 'Nunito, Poppins, sans-serif' }}>No notifications yet</p>
+              </div>
+            ) : (
+              notifications.map((notification, index) => (
+                <div 
+                  key={index}
+                  className={`notification-item ${
+                    notification.status === 'completed' ? 'notification-completed' : 'notification-received'
+                  }`}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ flex: 1 }}>
                       <div style={{ 
-                        color: 'var(--text-secondary)', 
-                        fontSize: '0.8rem',
-                        fontFamily: 'JetBrains Mono, monospace'
+                        fontWeight: '700', 
+                        fontSize: '0.9rem',
+                        marginBottom: '0.25rem',
+                        fontFamily: 'Nunito, Poppins, sans-serif'
                       }}>
-                        {notification.quantity} pizza{notification.quantity !== 1 ? 's' : ''}
+                        {notification.message || `Order ${notification.orderId.slice(-8).toUpperCase()}: ${notification.status}`}
                       </div>
-                    )}
-                  </div>
-                  <div style={{ 
-                    fontSize: '0.75rem', 
-                    color: 'var(--text-muted)',
-                    fontFamily: 'JetBrains Mono, monospace',
-                    textAlign: 'right',
-                    minWidth: 'fit-content',
-                    marginLeft: '1rem'
-                  }}>
-                    {new Date(notification.timestamp).toLocaleTimeString()}
+                      {notification.quantity && (
+                        <div style={{ 
+                          color: 'var(--text-secondary)', 
+                          fontSize: '0.8rem',
+                          fontFamily: 'Nunito, JetBrains Mono, monospace'
+                        }}>
+                          {notification.quantity} pizza{notification.quantity !== 1 ? 's' : ''}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ 
+                      fontSize: '0.75rem', 
+                      color: 'var(--text-muted)',
+                      fontFamily: 'Nunito, JetBrains Mono, monospace',
+                      textAlign: 'right',
+                      minWidth: 'fit-content',
+                      marginLeft: '1rem'
+                    }}>
+                      {new Date(notification.timestamp).toLocaleTimeString()}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
       </div>
 

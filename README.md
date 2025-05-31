@@ -420,4 +420,10 @@ Este proyecto está bajo la Licencia MIT. Siéntete libre de usarlo, modificarlo
 <div align="center">
   <p>Hecho con ❤️ para aprender sobre desarrollo de software moderno</p>
   <p>🍕 ¡Disfruta programando! 🍕</p>
-</div> 
+</div>
+
+## 🚀 Escalado de Procesadores (Para Workshop)
+
+> **📋 Por defecto**: El sistema inicia con **1 solo procesador**. Para el workshop, puedes escalarlo a múltiples instancias.
+
+¿Quieres demostrar escalado horizontal? ¡Aquí tienes 3 formas diferentes! 

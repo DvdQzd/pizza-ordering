@@ -109,13 +109,6 @@ services:
       kafka:
         condition: service_healthy
     restart: on-failure:5
-    deploy:
-      replicas: 3
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 5
-        window: 120s
 
   # Additional processor instances for workshop demonstration
   backend-processor-2:
