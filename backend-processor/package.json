@@ -1,0 +1,26 @@
+{
+  "name": "pizza-backend-processor",
+  "version": "1.0.0",
+  "description": "Pizza order processor with NestJS and Node.js fallback",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node index.js",
+    "start:prod": "node dist/main",
+    "start:nestjs": "npm run build && npm run start:prod"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/microservices": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "kafkajs": "^2.2.4",
+    "pizza-backend-processor": "file:",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

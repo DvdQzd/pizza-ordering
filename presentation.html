@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Amigable: Escalabilidad con NestJS y Kafka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Oculta el scroll vertical por defecto */
+            background-color: #1f2937; /* Azul oscuro para el fondo general */
+            color: #e2e8f0; /* Color de texto general más claro */
+        }
+        .presentation-container {
+            display: flex;
+            overflow-x: scroll; /* Habilita el scroll horizontal */
+            scroll-snap-type: x mandatory; /* Fuerza el "snap" a cada slide */
+            -webkit-overflow-scrolling: touch; /* Mejora el scroll en iOS */
+            height: 100vh; /* Ocupa toda la altura de la ventana */
+            width: 100vw; /* Ocupa todo el ancho de la ventana */
+        }
+        .slide {
+            flex-shrink: 0; /* Evita que las slides se encojan */
+            width: 100vw; /* Cada slide ocupa el 100% del ancho de la ventana */
+            height: 100vh; /* Cada slide ocupa el 100% de la altura de la ventana */
+            scroll-snap-align: start; /* Alinea el inicio de la slide al inicio del contenedor de scroll */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8rem 4rem; /* Aún mayor padding arriba y abajo para asegurar visibilidad */
+            box-sizing: border-box;
+            background-color: #1a202c; /* Fondo de slide ligeramente más oscuro que el body */
+            border-right: 2px solid #4a5568; /* Separador visual */
+        }
+        .slide-content {
+            max-width: 1000px; /* Ancho máximo del contenido aún más grande */
+            width: 90%; /* Ocupa más porcentaje del ancho disponible */
+            text-align: center;
+            padding: 4rem; /* Más padding interno para el contenido */
+            border-radius: 2rem; /* Bordes más redondeados */
+            background-color: #374151; /* Fondo oscuro para el contenido */
+            box-shadow: 0 20px 30px -5px rgba(0, 0, 0, 0.4), 0 10px 15px -6px rgba(0, 0, 0, 0.3); /* Sombra más pronunciada */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            color: #e2e8f0; /* Color de texto claro para el contenido */
+        }
+        .slide-content:hover {
+            transform: translateY(-10px); /* Más movimiento al pasar el ratón */
+            box-shadow: 0 30px 40px -8px rgba(0, 0, 0, 0.5), 0 15px 20px -8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            font-size: 5.5rem; /* Mucho más grande */
+            font-weight: 800; /* Extra bold */
+            color: #93c5fd; /* Azul claro para títulos principales */
+            margin-bottom: 2.5rem;
+        }
+        h2 {
+            font-size: 4.5rem; /* Más grande */
+            font-weight: 700; /* Bold */
+            color: #60a5fa; /* Azul para subtítulos */
+            margin-bottom: 2rem;
+        }
+        h3 {
+            font-size: 3.5rem; /* Más grande */
+            font-weight: 600; /* Semibold */
+            color: #cbd5e0; /* Gris claro para secciones */
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+        }
+        p {
+            font-size: 2rem; /* Más grande */
+            margin-bottom: 2rem;
+            color: #cbd5e0; /* Color de texto claro */
+            line-height: 1.8; /* Mayor interlineado */
+        }
+        ul, ol {
+            list-style-position: inside; /* Viñetas y números dentro del texto */
+            margin-left: 0; /* Sin margen izquierdo adicional */
+            margin-bottom: 2rem;
+            text-align: left;
+            color: #cbd5e0; /* Color de texto claro */
+            font-size: 1.8rem; /* Más grande */
+        }
+        li {
+            margin-bottom: 1rem; /* Más espacio entre ítems */
+        }
+        .highlight {
+            color: #fca5a5; /* Rojo más claro para destacar */
+            font-weight: 700;
+        }
+        /* Ajustes de color para el tema oscuro */
+        .text-green-600 { color: #86efac; } /* Verde más claro */
+        .text-purple-700 { color: #c4b5fd; } /* Púrpura más claro */
+        .text-blue-700 { color: #60a5fa; } /* Azul para subtítulos */
+        .text-orange-700 { color: #fdba74; } /* Naranja más claro */
+        .text-red-700 { color: #f87171; } /* Rojo más claro */
+        .text-indigo-700 { color: #a5b4fc; } /* Índigo más claro */
+        .text-blue-600 { color: #60a5fa; } /* Azul para énfasis */
+        .text-gray-200 { color: #e2e8f0; } /* Gris muy claro */
+        .text-gray-300 { color: #cbd5e0; } /* Gris claro */
+        .text-gray-800 { color: #e2e8f0; } /* Ajustado para contraste en fondos oscuros */
+
+        .qr-code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 4rem;
+        }
+        .qr-code-container img {
+            border-radius: 2rem; /* Más redondeado */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        .profile-pic {
+            display: none; /* Oculta la foto */
+        }
+        .arrow-indicator {
+            position: fixed;
+            bottom: 40px; /* Más abajo */
+            right: 40px; /* Más a la derecha */
+            background-color: #2563eb;
+            color: white;
+            border-radius: 50%;
+            width: 70px; /* Más grande */
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem; /* Flecha más grande */
+            cursor: pointer;
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+            animation: bounce 2s infinite;
+            z-index: 1000;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px); /* Más rebote */
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 4rem 2rem; /* Ajuste para pantallas pequeñas */
+            }
+            .slide-content {
+                padding: 2.5rem;
+                width: 95%;
+            }
+            h1 {
+                font-size: 3.5rem;
+            }
+            h2 {
+                font-size: 3rem;
+            }
+            h3 {
+                font-size: 2.5rem;
+            }
+            p, ul, ol, li {
+                font-size: 1.5rem;
+            }
+            .arrow-indicator {
+                width: 60px;
+                height: 60px;
+                font-size: 2.5rem;
+                bottom: 30px;
+                right: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container" id="presentationContainer">
+
+        <div class="slide">
+            <div class="slide-content">
+                <h1 class="text-blue-700">¡Bienvenidos al Workshop!</h1>
+                <p class="text-4xl font-semibold text-gray-200 mb-6">
+                    Hola a todos, soy <strong class="text-blue-600">David Quezada</strong>, desarrollador backend en <strong class="text-blue-600">SoftServe</strong>.
+                </p>
+                <p class="text-3xl text-gray-300 mt-6">
+                    Hoy vamos a aprender cómo construir sistemas que puedan crecer mucho, usando dos herramientas geniales: <strong class="highlight">NestJS</strong> y <strong class="highlight">Kafka</strong>.
+                </p>
+                <p class="text-3xl text-gray-300 mt-6">
+                    ¡Prepárense para construir una <strong class="highlight">pizzería digital súper eficiente</strong>! 🍕
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¿Qué aprenderemos hoy?</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    En este workshop, vamos a desmitificar la escalabilidad y ver cómo se aplica en la práctica:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>¿Qué significa <strong class="highlight">"escalabilidad"</strong> en el software?</li>
+                    <li>Conocer <strong class="highlight">NestJS</strong>: un "superhéroe" para tu backend.</li>
+                    <li>Conocer <strong class="highlight">Kafka</strong>: el "mensajero ultra-rápido".</li>
+                    <li>Crear un <strong class="highlight">servicio de pedidos de pizzas</strong> usando un patrón de eventos.</li>
+                    <li>Entender cómo NestJS y Kafka trabajan juntos para que tu aplicación <strong class="highlight">crezca sin problemas</strong>.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Escalabilidad: ¿Qué es y por qué importa?</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Imagina que tu pizzería es muy popular y de repente, ¡llegan miles de pedidos a la vez!
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    La <strong class="highlight">escalabilidad</strong> es la capacidad de tu sistema (tu pizzería digital) para <strong class="highlight">manejar más trabajo o más usuarios sin colapsar</strong>.
+                </p>
+                <h3>¿Por qué es importante?</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Para que tu aplicación <strong class="text-green-600">no se caiga</strong> cuando hay mucha gente usándola.</li>
+                    <li>Para que los usuarios siempre tengan una <strong class="text-green-600">buena experiencia</strong> (rápida y sin errores).</li>
+                    <li>Para poder <strong class="text-green-600">crecer y añadir nuevas funciones</strong> fácilmente.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¡Imagina un mundo sin Kafka! 😱</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    ¿Qué pasaría si nuestra pizzería recibe <strong class="highlight">un millón de pedidos</strong> sin un sistema como Kafka?
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Sin un "mensajero" central y eficiente, tendríamos problemas graves:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-red-700">¡Colapso del Servicio!</strong> Si el Frontend envía directamente al servicio de cocina, este se saturaría y dejaría de funcionar.</li>
+                    <li><strong class="text-red-700">Pérdida de Pedidos:</strong> Los pedidos que lleguen mientras el sistema está colapsado podrían perderse. ¡Clientes hambrientos y frustrados!</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¡Imagina un mundo sin Kafka! (Parte 2) 📉</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Continuando con los problemas sin un sistema de mensajería robusto:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-red-700">Lentitud Extrema:</strong> Cada pedido bloquearía el sistema hasta que se procese, haciendo que todo sea lentísimo.</li>
+                    <li><strong class="text-red-700">Difícil de Mantener:</strong> Si un servicio necesita hablar con muchos otros, se vuelve un "spaghetti" de conexiones directas.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    Kafka nos salva de estos dolores de cabeza, actuando como un <strong class="highlight">amortiguador y distribuidor de carga</strong>. ¡Es esencial para la escalabilidad!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">NestJS: El "Superhéroe" para tu Backend 🦸‍♂️</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    NestJS es un <strong class="highlight">marco de trabajo para Node.js</strong> que nos ayuda a construir la parte "invisible" de una aplicación (el backend) de forma <strong class="highlight">ordenada y eficiente</strong>.
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Piensa en él como un <strong class="text-blue-600">kit de herramientas y un manual de instrucciones</strong> para construir edificios muy sólidos y bien organizados.
+                </p>
+                <h3>¿Qué lo hace especial?</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong>Estructura Clara:</strong> Te ayuda a organizar tu código como piezas de LEGO.</li>
+                    <li><strong>TypeScript:</strong> Usa un "JavaScript con superpoderes" que te ayuda a evitar errores.</li>
+                    <li><strong>Preparado para Microservicios:</strong> Ideal para dividir tu aplicación en pequeñas partes que trabajan juntas.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¿Por qué NestJS nos ayuda a escalar?</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Un buen orden es clave para el crecimiento. NestJS nos ayuda porque:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Su <strong class="text-green-600">estructura modular</strong> permite que diferentes equipos trabajen en distintas partes sin estorbarse.</li>
+                    <li>Facilita la creación de <strong class="text-green-600">microservicios</strong>, que son como pequeños "servicios especializados" que pueden crecer de forma independiente.</li>
+                    <li>Su diseño fomenta la <strong class="text-green-600">reutilización de código</strong>, ahorrando tiempo y esfuerzo.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Así, nuestra pizzería digital puede tener un servicio de pedidos, un servicio de cocina y un servicio de entrega, cada uno funcionando por su cuenta!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Message Brokers: Los "Centros de Mensajes" 📦</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Antes de hablar de Kafka, pensemos en cómo se comunican las diferentes partes de un sistema.
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Un <strong class="highlight">Message Broker</strong> es como una <strong class="text-blue-600">oficina de correos central</strong> para tus aplicaciones.
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Las aplicaciones <strong class="text-green-600">envían mensajes</strong> a este centro.</li>
+                    <li>El centro <strong class="text-green-600">guarda y organiza</strong> esos mensajes.</li>
+                    <li>Otras aplicaciones <strong class="text-green-600">recogen los mensajes</strong> que les interesan.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    Esto permite que las aplicaciones se comuniquen sin saber directamente dónde está la otra, ¡solo necesitan hablar con el "centro de correos"!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Kafka: El "Mensajero Ultra-Rápido" 📬</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Kafka es un tipo muy especial de <strong class="highlight">Message Broker</strong>, pero diseñado para manejar <strong class="highlight">enormes cantidades de mensajes</strong> muy rápido y de forma segura.
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Piensa en él como un <strong class="text-blue-600">sistema de correo súper eficiente y rápido</strong> que entrega mensajes entre las diferentes partes de tu aplicación.
+                </p>
+                <h3>Conceptos Clave de Kafka (¡Súper Simplificado!):</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong>Productores:</strong> Los que <strong class="text-green-600">envían</strong> mensajes (ej. el servicio de pedidos).</li>
+                    <li><strong>Consumidores:</strong> Los que <strong class="text-green-600">reciben</strong> y leen mensajes (ej. el servicio de cocina).</li>
+                    <li><strong>Brokers:</strong> Los <strong class="text-green-600">servidores</strong> que guardan y gestionan todos esos buzones y mensajes.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Vamos a ver cómo organiza los mensajes internamente!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Kafka en Detalle: Topics 📚</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Kafka organiza los mensajes en "buzones" especiales para que todo sea más eficiente:
+                </p>
+                <h3><strong class="text-green-600">Temas (Topics):</strong> Los Buzones de Mensajes ✉️</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Un <strong class="highlight">Topic</strong> es una categoría o nombre de "buzón" donde se publican los mensajes de un tipo específico.</li>
+                    <li>Ejemplo: Un topic llamado `pizza.orders` para todos los pedidos de pizzas, y `pizza.finished` para las pizzas que ya están listas.</li>
+                    <li>Los productores envían mensajes a un topic, y los consumidores leen de un topic.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    Cada topic es como un flujo continuo de mensajes, ¡siempre listo para recibir y enviar!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Kafka en Detalle: Particiones ⚡</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Para manejar muchísimos mensajes, cada Topic se divide en:
+                </p>
+                <h3><strong class="text-green-600">Particiones:</strong> La Clave de la Velocidad y Paralelismo 🚀</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Cada <strong class="highlight">Topic</strong> se divide en una o más <strong class="highlight">Particiones</strong>.</li>
+                    <li>Piensa en las particiones como <strong class="text-blue-600">carriles separados</strong> dentro de un mismo buzón.</li>
+                    <li>Esto permite que Kafka sea <strong class="text-green-600">súper rápido y escalable</strong>:
+                        <ul class="list-circle pl-8">
+                            <li>Múltiples productores pueden escribir en diferentes particiones al mismo tiempo.</li>
+                            <li>Múltiples consumidores pueden leer de diferentes particiones al mismo tiempo, ¡procesando mensajes en paralelo!</li>
+                        </ul>
+                    </li>
+                    <li>También ayuda a la <strong class="text-green-600">tolerancia a fallos</strong>: si un "carril" falla, los otros siguen funcionando.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¿Por qué Kafka nos ayuda a escalar?</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Kafka es como un <strong class="highlight">amortiguador y un distribuidor de trabajo</strong>:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong>Desacoplamiento:</strong> Los servicios no necesitan hablar directamente. Solo envían y reciben mensajes de Kafka. ¡Esto es genial para que cada servicio sea independiente!</li>
+                    <li><strong>Manejo de Picos:</strong> Si de repente llegan 1000 pedidos de pizza, Kafka los guarda y los entrega poco a poco para que tu cocina no se sature.</li>
+                    <li><strong>Siempre Disponible:</strong> Si un servidor de Kafka falla, los mensajes no se pierden y se procesarán cuando se recupere.</li>
+                    <li><strong>Procesamiento Paralelo:</strong> Gracias a las <strong class="highlight">particiones</strong>, puedes tener varias "cocinas" leyendo mensajes del mismo buzón al mismo tiempo para hacer más pizzas.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Patrón Basado en Eventos: ¡Hablemos con Mensajes! 💬</h2>
+                <p class="text-3xl text-gray-300 mb-6">
+                    Este patrón es la clave de cómo NestJS y Kafka trabajan juntos.
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    En lugar de que un servicio llame directamente a otro, los servicios <strong class="highlight">publican "eventos" (mensajes)</strong> cuando algo importante sucede, y otros servicios que están interesados <strong class="highlight">escuchan esos eventos</strong>.
+                </p>
+                <h3>Ejemplo en nuestra Pizzería:</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Cuando un cliente hace un pedido, el "Servicio de Pedidos" <strong class="text-green-600">publica el evento</strong>: "¡Nuevo Pedido Recibido!"</li>
+                    <li>El "Servicio de Cocina" <strong class="text-green-600">escucha</strong> ese evento y empieza a preparar la pizza.</li>
+                    <li>El "Servicio de Notificaciones" también <strong class="text-green-600">escucha</strong> y envía un email al cliente.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Todos trabajan juntos, pero sin depender directamente unos de otros!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¡Manos a la Obra! La Pizzería Escalable 🍕</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Vamos a construir un sistema de pedidos de pizzas con varios "jugadores" clave.
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Cada uno de estos "jugadores" es un <strong class="highlight">servicio independiente</strong> que hace una tarea específica.
+                </p>
+                <h3>Conozcamos a nuestros servicios:</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-purple-700">Frontend:</strong> La "cara" de la pizzería para el cliente.</li>
+                    <li><strong class="text-blue-700">BFF (Backend For Frontend):</strong> Nuestro "intermediario" inteligente.</li>
+                    <li><strong class="text-green-700">Backend-Processor:</strong> El "cocinero" de pizzas.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Veamos qué hace cada uno en detalle!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Los "Jugadores" de Nuestra Pizzería: Parte 1</h2>
+                <h3><strong class="text-purple-700">Frontend:</strong> La Web del Cliente 🌐</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Es la página web o la aplicación móvil que el cliente usa para ver el menú y hacer su pedido.</li>
+                    <li>Su tarea principal es <strong class="highlight">tomar el pedido</strong> (por ejemplo, "quiero 2 pizzas") y <strong class="highlight">enviar esta información al BFF</strong> usando una petición HTTP (como cuando navegas por internet).</li>
+                </ul>
+                <h3><strong class="text-blue-700">BFF (Backend For Frontend - NestJS):</strong> El Intermediario Inteligente 🧠</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Es un servicio hecho con NestJS que actúa como un <strong class="highlight">puente entre el Frontend y el resto de servicios</strong>.</li>
+                    <li><strong class="text-green-600">Recibe el pedido del Frontend</strong>.</li>
+                    <li>¡Y aquí viene lo interesante! Su trabajo es <strong class="highlight">transformar esa petición en un "evento"</strong>.</li>
+                    <li><strong class="highlight">Produce un evento `pizza.order` y lo envía a Kafka</strong>. Piensa en esto como gritar "¡Nuevo pedido de pizza!" a un sistema de altavoces.</li>
+                    <li>Más adelante, recibirá un evento de "pizza terminada" y se lo comunicará al Frontend por WebSockets (¡una comunicación en tiempo real!).</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Los "Jugadores" de Nuestra Pizzería: Parte 2</h2>
+                <h3><strong class="text-green-700">Backend-Processor (NestJS):</strong> El Cocinero de Pizzas 👨‍🍳</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Este es otro servicio hecho con NestJS, y su única misión es <strong class="highlight">preparar las pizzas</strong>.</li>
+                    <li>Está <strong class="highlight">escuchando atentamente el "buzón" de Kafka para eventos `pizza.order`</strong>. Cuando ve uno, sabe que tiene que empezar a cocinar.</li>
+                    <li><strong class="text-green-600">Simula el cocinar una pizza</strong> (¡esto tardará unos 5 segundos por pizza en nuestro workshop!).</li>
+                    <li>Una vez que la pizza está "lista", el Backend-Processor <strong class="highlight">envía un nuevo evento `pizza.finished` a Kafka</strong>. Es como poner una nota en el buzón de "Pizzas Listas" para que otros servicios se enteren.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Estos servicios trabajan de forma independiente, pero se comunican a través de Kafka!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">El Viaje del Pedido: Parte 1 🚀</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    Veamos el primer tramo del viaje de un pedido de pizza:
+                </p>
+                <div class="text-left text-2xl p-8 bg-gray-700 rounded-2xl shadow-inner text-gray-200">
+                    <ol class="list-decimal pl-6">
+                        <li><strong class="text-green-600">1. El Cliente Pide (Frontend):</strong>
+                            <ul class="list-disc pl-4">
+                                <li>Desde la página web (Frontend), el cliente elige sus pizzas y hace clic en "Pedir".</li>
+                                <li>El Frontend envía una petición HTTP simple (ej. `{ "numeroPizzas": 2 }`) a nuestro BFF.</li>
+                            </ul>
+                        </li>
+                        <li><strong class="text-purple-700">2. El Intermediario Recibe y Envía (BFF - NestJS):</strong>
+                            <ul class="list-disc pl-4">
+                                <li>El BFF recibe la petición del Frontend.</li>
+                                <li>Inmediatamente, el BFF <strong class="highlight">produce un evento `pizza.order` y lo envía a Kafka</strong>. ¡Es como poner una nota en el buzón de "Pedidos de Pizza"!</li>
+                                <li>El BFF le dice al cliente: "¡Pedido recibido!" (muy rápido, porque el trabajo pesado lo hará otro servicio).</li>
+                            </ul>
+                        </li>
+                        <li><strong class="text-orange-700">3. Kafka (El Mensajero Central):</strong>
+                            <ul class="list-disc pl-4">
+                                <li>Kafka recibe el evento `pizza.order` y lo guarda de forma segura.</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">El Viaje del Pedido: Parte 2 🍕</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    Ahora, veamos cómo la pizza se prepara y se notifica:
+                </p>
+                <div class="text-left text-2xl p-8 bg-gray-700 rounded-2xl shadow-inner text-gray-200">
+                    <ol class="list-decimal pl-6" start="4">
+                        <li><strong class="text-red-700">4. El Cocinero Trabaja (Backend-Processor - NestJS):</strong>
+                            <ul class="list-disc pl-4">
+                                <li>El Backend-Processor está <strong class="highlight">escuchando el evento `pizza.order` de Kafka</strong>.</li>
+                                <li>Cuando lo recibe, ¡empieza a "cocinar" la pizza! (Simularemos esto con una espera de 5 segundos por pizza). 👨‍🍳</li>
+                                <li>Una vez "cocinada", el Backend-Processor <strong class="highlight">produce un nuevo evento `pizza.finished` y lo envía a Kafka</strong>. Es como poner una nota en el buzón de "Pizzas Listas"!</li>
+                            </ul>
+                        </li>
+                        <li><strong class="text-indigo-700">5. El Intermediario Notifica (BFF - NestJS):</strong>
+                            <ul class="list-disc pl-4">
+                                <li>El BFF también está <strong class="highlight">escuchando el evento `pizza.finished` de Kafka</strong>.</li>
+                                <li>Cuando lo recibe, usa <strong class="text-blue-600">WebSockets</strong> para enviar una notificación en tiempo real al Frontend del cliente: "¡Tu pizza está lista!" 🔔</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    <p class="text-2xl text-gray-300 mt-6 italic">
+                        <strong class="highlight">Nota:</strong> En este workshop, nos centraremos en cómo NestJS y Kafka manejan los mensajes entre el BFF y el Backend-Processor. La parte de WebSockets es para que sepan que existe, ¡pero no la construiremos hoy!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">Beneficios: ¿Por qué todo este esfuerzo? 🤔</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    La combinación de NestJS y Kafka nos da una pizzería digital <strong class="highlight">súper resistente y lista para crecer</strong>:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-green-600">No se Satura:</strong> Si hay muchos pedidos, Kafka los guarda y los servicios los procesan a su ritmo.</li>
+                    <li><strong class="text-green-600">Rápido para el Cliente:</strong> El cliente recibe una confirmación al instante, aunque la pizza aún no esté lista.</li>
+                    <li><strong class="text-green-600">Fácil de Mejorar:</strong> Puedes añadir un "Servicio de Reparto" sin tocar el "Servicio de Pedidos".</li>
+                    <li><strong class="text-green-600">Resistente a Fallos:</strong> Si un servicio se cae, los mensajes no se pierden y se procesarán cuando se recupere.</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Tu pizzería estará lista para dominar el mundo! 🚀
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¡Desafío Extra! Crea tu Servicio de Delivery 🚚</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Una vez que termines el workshop, ¡la diversión no tiene por qué acabar!
+                </p>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Gracias al <strong class="highlight">desacoplamiento</strong> que nos ofrece Kafka, puedes crear un <strong class="highlight">nuevo servicio</strong> sin afectar lo que ya construimos.
+                </p>
+                <h3>¿Qué podrías hacer?</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Un <strong class="text-green-600">Servicio de Delivery (NestJS)</strong> que:
+                        <ul class="list-circle pl-8">
+                            <li><strong class="highlight">Escuche el evento `pizza.finished` de Kafka</strong>.</li>
+                            <li>Cuando reciba este evento, simule el proceso de entrega (ej. "¡Pizza en camino!", "¡Pizza entregada!").</li>
+                            <li>Podría incluso enviar sus propios eventos a Kafka (ej. `delivery.started`, `delivery.finished`).</li>
+                        </ul>
+                    </li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Esto demuestra el poder de los eventos para construir sistemas modulares y extensibles!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¡Manos a la Obra! 💻</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    Ahora que entendemos la teoría, es momento de empezar a codificar.
+                </p>
+                <h3>¿Qué necesitamos?</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>Un editor de código (¡VS Code es genial!).</li>
+                    <li><strong class="highlight">Docker Desktop</strong> (para levantar todos nuestros servicios, ¡incluyendo Kafka!).</li>
+                    <li>¡Ganas de aprender y construir!</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    ¡Vamos a configurar nuestro entorno y crear los primeros servicios de nuestra pizzería!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">¡Muchas Gracias!</h2>
+                <p class="text-4xl text-gray-300 mb-8">
+                    Espero que este workshop haya sido útil y les haya dado una visión clara de la escalabilidad con NestJS y Kafka.
+                </p>
+                <p class="text-4xl text-gray-300 mb-10">
+                    ¿Tienen alguna pregunta? ¡Estoy aquí para ayudar!
+                </p>
+
+                <div class="qr-code-container">
+                    <p class="text-4xl font-semibold text-gray-200 mb-8">¡Conéctense conmigo en LinkedIn!</p>
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://www.linkedin.com/in/dvdqzd" alt="Código QR para LinkedIn de David Quezada" class="w-80 h-80 rounded-2xl shadow-lg">
+                    <a href="https://www.linkedin.com/in/dvdqzd" target="_blank" class="mt-8 text-blue-600 hover:underline text-3xl font-medium">https://www.linkedin.com/in/dvdqzd</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="arrow-indicator" onclick="scrollNextSlide()">&#x2192;</div>
+
+    <script>
+        const presentationContainer = document.getElementById('presentationContainer');
+        const slides = document.querySelectorAll('.slide');
+        let currentSlideIndex = 0;
+
+        function scrollNextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+            } else {
+                // Si llegamos al final, volvemos al inicio
+                currentSlideIndex = 0;
+                slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+            }
+        }
+
+        // Permitir navegación con teclas de flecha
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                scrollNextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                if (currentSlideIndex > 0) {
+                    currentSlideIndex--;
+                    slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+                }
+            }
+        });
+
+        // Actualizar el índice de la slide al hacer scroll manualmente
+        presentationContainer.addEventListener('scroll', () => {
+            const scrollLeft = presentationContainer.scrollLeft;
+            const slideWidth = presentationContainer.offsetWidth;
+            currentSlideIndex = Math.round(scrollLeft / slideWidth);
+        });
+    </script>
+</body>
+</html>
