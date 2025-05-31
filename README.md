@@ -162,6 +162,89 @@ docker-compose ps
 docker-compose down
 ```
 
+### 📈 Escalado de Procesadores (NUEVO - Para el Taller)
+
+¿Quieres ver cómo funciona la escalabilidad horizontal? ¡Ahora puedes ejecutar múltiples procesadores!
+
+#### 🚀 Opción 1: Escalado Dinámico (MÁS FÁCIL)
+```bash
+# Iniciar el sistema normalmente
+docker-compose up --build -d
+
+# Escalar a 3 procesadores
+docker-compose scale backend-processor=3
+
+# Ver todas las instancias
+docker-compose ps | grep backend-processor
+
+# Volver a 1 procesador
+docker-compose scale backend-processor=1
+```
+
+#### 🎯 Opción 2: Scripts Helper (SÚPER FÁCIL)
+
+**En Windows (PowerShell):**
+```powershell
+# Ver opciones disponibles
+.\scaling-demo.ps1 help
+
+# Iniciar sistema
+.\scaling-demo.ps1 start
+
+# Escalar a 3 instancias
+.\scaling-demo.ps1 scale 3
+
+# Ver estado de procesadores
+.\scaling-demo.ps1 status
+
+# Ver logs de todos los procesadores
+.\scaling-demo.ps1 logs
+```
+
+**En Linux/Mac:**
+```bash
+# Hacer ejecutable el script (solo la primera vez)
+chmod +x scaling-demo.sh
+
+# Ver opciones disponibles
+./scaling-demo.sh help
+
+# Iniciar sistema
+./scaling-demo.sh start
+
+# Escalar a 3 instancias
+./scaling-demo.sh scale 3
+
+# Ver estado de procesadores
+./scaling-demo.sh status
+```
+
+#### 🏗️ Opción 3: Instancias Explícitas (PARA DEMOSTRACIÓN)
+```bash
+# Usar configuración con replicas predefinidas
+docker-compose up --build -d
+
+# O usar instancias nombradas explícitamente
+docker-compose --profile scaling-demo up -d
+```
+
+#### 🎮 ¿Qué verás en los logs?
+
+Con múltiples procesadores, verás algo así:
+```
+=== 🍕 [processor-1] RECEIVED PIZZA ORDER ===
+Processor: processor-1
+Order: abc123
+=============================================
+
+=== 🍕 [processor-2] RECEIVED PIZZA ORDER ===
+Processor: processor-2
+Order: def456
+=============================================
+```
+
+¡Cada procesador tiene su propio ID y procesa pedidos independientemente! 🎉
+
 ### Control del Procesador de Pedidos
 ```bash
 # Parar solo el procesador
@@ -197,6 +280,8 @@ pizza-ordering-system/
 ├── 📄 README.md               # Este archivo
 ├── 📄 WORKSHOP.md             # Guía del workshop
 ├── 📄 docker-compose.yml      # Configuración de servicios
+├── 🚀 scaling-demo.sh         # Script de escalado para Linux/Mac
+├── 🚀 scaling-demo.ps1        # Script de escalado para Windows
 ├── 🌐 frontend/               # Aplicación React
 │   ├── 📄 .gitignore          # Git ignore específico de frontend
 │   ├── 📄 .dockerignore       # Docker ignore específico
@@ -223,6 +308,12 @@ Este proyecto incluye archivos `.gitignore` optimizados para cada tecnología:
 - **📡 BFF**: Específico para NestJS + Kafka
 - **🔄 Processor**: Específico para NestJS + archivos de workshop
 - **🐳 Docker**: Optimización de builds con `.dockerignore`
+
+### 🚀 Scripts de Escalado Incluidos
+
+- **`scaling-demo.sh`**: Script para Linux/Mac con comandos coloridos
+- **`scaling-demo.ps1`**: Script para Windows PowerShell con colores
+- **Funcionalidades**: start, scale, status, logs, stop, help
 
 Esto asegura que solo se versionen los archivos necesarios y se mantengan privados los archivos de soluciones del workshop.
 

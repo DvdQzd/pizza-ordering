@@ -6,12 +6,16 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
   private kafka: Kafka;
   private producer: Producer;
   private consumer: Consumer;
+  private processorId: string;
 
   async onModuleInit() {
-    console.log('🔧 Initializing OrderProcessor...');
+    // Get processor ID from environment or generate one
+    this.processorId = process.env.PROCESSOR_ID || `processor-${Math.random().toString(36).substr(2, 9)}`;
+    
+    console.log(`🔧 Initializing OrderProcessor [${this.processorId}]...`);
     
     this.kafka = new Kafka({
-      clientId: 'pizza-processor-nestjs',
+      clientId: `pizza-processor-nestjs-${this.processorId}`,
       brokers: ['kafka:29092'],
       retry: {
         initialRetryTime: 100,
@@ -30,18 +34,18 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
     try {
       // Connect producer
       await this.producer.connect();
-      console.log('✅ Kafka Producer connected successfully!');
+      console.log(`✅ [${this.processorId}] Kafka Producer connected successfully!`);
 
       // Connect consumer
       await this.consumer.connect();
-      console.log('✅ Kafka Consumer connected successfully!');
+      console.log(`✅ [${this.processorId}] Kafka Consumer connected successfully!`);
 
       // Subscribe to topic
       await this.consumer.subscribe({ 
         topics: ['pizza.orders'],
         fromBeginning: false 
       });
-      console.log('✅ Subscribed to pizza.orders topic');
+      console.log(`✅ [${this.processorId}] Subscribed to pizza.orders topic`);
 
       // Start consuming messages
       await this.consumer.run({
@@ -49,10 +53,10 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
           await this.processOrder(topic, partition, message);
         },
       });
-      console.log('🚀 Pizza Backend Processor is ready to process orders!');
+      console.log(`🚀 [${this.processorId}] Pizza Backend Processor is ready to process orders!`);
 
     } catch (error) {
-      console.error('❌ Failed to initialize Kafka:', error);
+      console.error(`❌ [${this.processorId}] Failed to initialize Kafka:`, error);
     }
   }
 
@@ -60,14 +64,14 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
     try {
       if (this.consumer) {
         await this.consumer.disconnect();
-        console.log('🔌 Kafka Consumer disconnected');
+        console.log(`🔌 [${this.processorId}] Kafka Consumer disconnected`);
       }
       if (this.producer) {
         await this.producer.disconnect();
-        console.log('🔌 Kafka Producer disconnected');
+        console.log(`🔌 [${this.processorId}] Kafka Producer disconnected`);
       }
     } catch (error) {
-      console.error('❌ Error disconnecting from Kafka:', error);
+      console.error(`❌ [${this.processorId}] Error disconnecting from Kafka:`, error);
     }
   }
 
@@ -75,14 +79,15 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
     const data = JSON.parse(message.value.toString());
     const { orderId, quantity, timestamp } = data;
 
-    console.log('=== RECEIVED PIZZA ORDER ===');
+    console.log(`=== 🍕 [${this.processorId}] RECEIVED PIZZA ORDER ===`);
     console.log(`Topic: ${topic}`);
     console.log(`Partition: ${partition}`);
     console.log(`Offset: ${message.offset}`);
     console.log(`Data: ${JSON.stringify(data)}`);
-    console.log('============================');
+    console.log(`Processor: ${this.processorId}`);
+    console.log('=============================================');
 
-    console.log(`🍕 Processing order ${orderId}...`);
+    console.log(`🍕 [${this.processorId}] Processing order ${orderId}...`);
     console.log(`   📦 Quantity: ${quantity} pizzas`);
     console.log(`   ⏱️  Processing time: ${quantity} pizzas × 2 seconds = ${quantity * 2} seconds total`);
 
@@ -95,7 +100,8 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
       orderId: orderId,
       status: 'completed',
       processedAt: new Date().toISOString(),
-      originalQuantity: quantity
+      originalQuantity: quantity,
+      processedBy: this.processorId
     };
 
     try {
@@ -109,11 +115,11 @@ export class OrderProcessor implements OnModuleInit, OnModuleDestroy {
         ]
       });
 
-      console.log('✅ Order completed and sent to order.completed topic:');
+      console.log(`✅ [${this.processorId}] Order completed and sent to order.completed topic:`);
       console.log(`   ${JSON.stringify(completionMessage)}`);
-      console.log('🎉 Cycle completed!');
+      console.log(`🎉 [${this.processorId}] Cycle completed!`);
     } catch (error) {
-      console.error('❌ Failed to send completion message:', error);
+      console.error(`❌ [${this.processorId}] Failed to send completion message:`, error);
     }
   }
 

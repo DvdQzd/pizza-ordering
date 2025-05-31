@@ -104,16 +104,49 @@ services:
     command: ["npm", "run", "start:nestjs"]
     environment:
       - KAFKA_BROKERS=kafka:29092
+      - PROCESSOR_ID=processor-1
     depends_on:
       kafka:
         condition: service_healthy
     restart: on-failure:5
     deploy:
+      replicas: 3
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 5
         window: 120s
+
+  # Additional processor instances for workshop demonstration
+  backend-processor-2:
+    build:
+      context: ./backend-processor
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start:nestjs"]
+    environment:
+      - KAFKA_BROKERS=kafka:29092
+      - PROCESSOR_ID=processor-2
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: on-failure:5
+    profiles:
+      - scaling-demo
+
+  backend-processor-3:
+    build:
+      context: ./backend-processor
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start:nestjs"]
+    environment:
+      - KAFKA_BROKERS=kafka:29092
+      - PROCESSOR_ID=processor-3
+    depends_on:
+      kafka:
+        condition: service_healthy
+    restart: on-failure:5
+    profiles:
+      - scaling-demo
 
 volumes:
   zookeeper_data:
