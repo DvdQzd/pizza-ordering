@@ -262,6 +262,9 @@ docker-compose restart backend-processor
 # Ver logs del procesador
 docker logs pizza-ordering-system-backend-processor-1 --follow
 
+# Ver logs de TODOS los procesadores (cuando hay múltiples)
+docker-compose logs -f backend-processor
+
 # Ver logs del frontend
 docker logs pizza-ordering-system-frontend-1 --follow
 

@@ -180,15 +180,48 @@
         <div class="slide">
             <div class="slide-content">
                 <h1 class="text-blue-700">¡Bienvenidos al Workshop!</h1>
-                <p class="text-4xl font-semibold text-gray-200 mb-6">
-                    Hola a todos, soy <strong class="text-blue-600">David Quezada</strong>, desarrollador backend en <strong class="text-blue-600">SoftServe</strong>.
-                </p>
-                <p class="text-3xl text-gray-300 mt-6">
-                    Hoy vamos a aprender cómo construir sistemas que puedan crecer mucho, usando dos herramientas geniales: <strong class="highlight">NestJS</strong> y <strong class="highlight">Kafka</strong>.
-                </p>
-                <p class="text-3xl text-gray-300 mt-6">
-                    ¡Prepárense para construir una <strong class="highlight">pizzería digital súper eficiente</strong>! 🍕
-                </p>
+                
+                <!-- Sección de foto personal -->
+                <div class="profile-section flex flex-col md:flex-row items-center justify-center mb-8 gap-8">
+                    <div class="profile-photo-container">
+                        <div class="w-48 h-48 bg-gray-600 rounded-full border-4 border-blue-500 flex items-center justify-center text-gray-400 text-lg">
+                            <div class="text-center">
+                            <img src="./20250509_125315.png" alt="David Quezada" class="w-48 h-48 rounded-full object-cover">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-info text-left">
+                        <h2 class="text-4xl font-bold text-blue-400 mb-4">David Quezada</h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">💼</span>
+                                <p class="text-2xl text-gray-200"><strong>Backend Developer</strong> en <span class="text-blue-400 font-semibold">SoftServe</span></p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🎵</span>
+                                <p class="text-xl text-gray-300">Amante de la música</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🎮</span>
+                                <p class="text-xl text-gray-300">Fan de los videojuegos retro</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-2xl">🌭</span>
+                                <p class="text-xl text-gray-300">Adicto a los completos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workshop-intro mt-8">
+                    <p class="text-3xl text-gray-300 mb-6">
+                        Hoy vamos a aprender cómo construir sistemas que puedan crecer mucho, usando dos herramientas geniales: <strong class="highlight">NestJS</strong> y <strong class="highlight">Kafka</strong>.
+                    </p>
+                    <p class="text-3xl text-gray-300">
+                        ¡Prepárense para construir una <strong class="highlight">pizzería digital súper eficiente</strong>! 🍕
+                    </p>
+                </div>
             </div>
         </div>
 
@@ -582,6 +615,153 @@
                 </ul>
                 <p class="text-3xl text-gray-300 mt-10">
                     ¡Vamos a configurar nuestro entorno y crear los primeros servicios de nuestra pizzería!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">🚀 Demo: Escalando Múltiples Procesadores</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    ¡Ahora viene lo emocionante! Vamos a demostrar cómo <strong class="highlight">escalar horizontalmente</strong> nuestro sistema.
+                </p>
+                <h3>¿Qué veremos?</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-green-600">1 procesador → 3 procesadores</strong> trabajando en paralelo</li>
+                    <li>Cada procesador con su <strong class="highlight">ID único</strong> para identificarlos</li>
+                    <li>Distribución automática de pedidos entre procesadores</li>
+                    <li>Configuración de <strong class="text-blue-600">particiones en Kafka</strong></li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-8">
+                    <strong class="highlight">Regla de oro:</strong> Número de procesadores ≤ Número de particiones
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">🛠️ Comandos para Escalar</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    Hemos creado scripts súper fáciles para demostrar el escalado:
+                </p>
+                <div class="text-left text-2xl p-8 bg-gray-700 rounded-2xl shadow-inner text-gray-200">
+                    <h3 class="text-green-600 mb-4">Windows (PowerShell):</h3>
+                    <ul class="list-disc pl-6 mb-6">
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">.\scaling-demo.ps1 start</code> - Iniciar sistema</li>
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">.\scaling-demo.ps1 scale 3</code> - Escalar a 3 procesadores</li>
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">.\scaling-demo.ps1 status</code> - Ver procesadores activos</li>
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">.\scaling-demo.ps1 logs</code> - Ver logs en tiempo real</li>
+                    </ul>
+                    <h3 class="text-green-600 mb-4">Linux/Mac:</h3>
+                    <ul class="list-disc pl-6">
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">./scaling-demo.sh start</code> - Iniciar sistema</li>
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">./scaling-demo.sh scale 3</code> - Escalar a 3 procesadores</li>
+                        <li><code class="bg-gray-800 px-2 py-1 rounded">./scaling-demo.sh status</code> - Ver procesadores activos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">🔍 ¿Qué Veremos en los Logs?</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    Con múltiples procesadores, cada uno tendrá su identidad:
+                </p>
+                <div class="text-left text-xl p-8 bg-gray-800 rounded-2xl shadow-inner text-green-400 font-mono">
+                    <p class="mb-4">=== 🍕 [processor-1] RECEIVED PIZZA ORDER ===</p>
+                    <p class="mb-4">Processor: processor-1</p>
+                    <p class="mb-4">Partition: 0</p>
+                    <p class="mb-4">Order: abc123</p>
+                    <p class="mb-6">=============================================</p>
+                    <p class="mb-4">=== 🍕 [processor-2] RECEIVED PIZZA ORDER ===</p>
+                    <p class="mb-4">Processor: processor-2</p>
+                    <p class="mb-4">Partition: 1</p>
+                    <p class="mb-4">Order: def456</p>
+                    <p>=============================================</p>
+                </div>
+                <p class="text-3xl text-gray-300 mt-8">
+                    ¡Cada procesador muestra su <strong class="highlight">ID único</strong> y qué <strong class="text-blue-600">partición</strong> está procesando!
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">⚡ El Problema de las Particiones</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    <strong class="text-red-700">Problema común:</strong> Escalas a 3 procesadores pero solo 1 trabaja.
+                </p>
+                <h3>¿Por qué pasa esto?</h3>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li>El topic <code class="bg-gray-700 px-2 py-1 rounded">pizza.orders</code> tiene <strong class="text-red-700">1 partición</strong></li>
+                    <li>En Kafka: <strong class="highlight">1 partición = máximo 1 consumidor</strong> por consumer group</li>
+                    <li>Los otros 2 procesadores quedan "idle" esperando</li>
+                </ul>
+                <h3 class="text-green-600 mt-8">✅ Solución:</h3>
+                <div class="text-left text-xl p-6 bg-gray-800 rounded-xl shadow-inner text-green-400 font-mono">
+                    <p>docker exec kafka-container kafka-topics \</p>
+                    <p>&nbsp;&nbsp;--alter --topic pizza.orders --partitions 3</p>
+                </div>
+                <p class="text-3xl text-gray-300 mt-8">
+                    ¡Nuestros scripts ya lo hacen automáticamente! 🎉
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">📊 Demostración en Vivo</h2>
+                <p class="text-3xl text-gray-300 mb-10">
+                    ¡Ahora vamos a ver todo esto en acción!
+                </p>
+                <ol class="list-decimal pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li class="mb-4">🚀 <strong class="text-green-600">Iniciar</strong> el sistema con 1 procesador</li>
+                    <li class="mb-4">📈 <strong class="text-blue-600">Escalar</strong> a 3 procesadores</li>
+                    <li class="mb-4">🍕 <strong class="text-purple-600">Hacer pedidos</strong> desde el frontend</li>
+                    <li class="mb-4">👀 <strong class="text-orange-600">Observar</strong> cómo se distribuyen</li>
+                    <li class="mb-4">🔍 <strong class="text-red-600">Monitorear</strong> logs en tiempo real</li>
+                </ol>
+                <p class="text-3xl text-gray-300 mt-10">
+                    <strong class="highlight">Accesos:</strong>
+                    <br>🌐 Frontend: <code class="bg-gray-700 px-2 py-1 rounded">http://localhost:3001</code>
+                    <br>📊 Kafka UI: <code class="bg-gray-700 px-2 py-1 rounded">http://localhost:8080</code>
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">🎓 Lecciones Aprendidas del Escalado</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    Después de nuestra demostración práctica, ¿qué hemos aprendido?
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-green-600">Kafka Partitions = Paralelismo:</strong> Más particiones permiten más consumidores trabajando simultáneamente</li>
+                    <li><strong class="text-blue-600">Docker Compose Scale:</strong> Escalar servicios es tan fácil como <code class="bg-gray-700 px-2 py-1 rounded">scale backend-processor=3</code></li>
+                    <li><strong class="text-purple-600">Consumer Groups:</strong> Kafka distribuye automáticamente el trabajo entre consumidores del mismo grupo</li>
+                    <li><strong class="text-orange-600">Monitoreo es Clave:</strong> Los logs nos permiten ver exactamente qué procesador maneja cada pedido</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    <strong class="highlight">Lo más importante:</strong> La escalabilidad horizontal funciona en la práctica, ¡no solo en teoría! 🚀
+                </p>
+            </div>
+        </div>
+
+        <div class="slide">
+            <div class="slide-content">
+                <h2 class="text-blue-700">🔧 Herramientas que Creamos</h2>
+                <p class="text-3xl text-gray-300 mb-8">
+                    Durante el workshop, desarrollamos herramientas útiles para la demostración:
+                </p>
+                <ul class="list-disc pl-8 mx-auto w-fit text-left text-3xl text-gray-300">
+                    <li><strong class="text-green-600">Scripts de Escalado:</strong> <code class="bg-gray-700 px-2 py-1 rounded">scaling-demo.sh/.ps1</code> para manejar múltiples instancias fácilmente</li>
+                    <li><strong class="text-blue-600">Configuración Automática:</strong> Setup de particiones de Kafka automático en el inicio</li>
+                    <li><strong class="text-purple-600">IDs de Procesador:</strong> Cada instancia muestra claramente cuál procesador está trabajando</li>
+                    <li><strong class="text-orange-600">Docker Compose Profiles:</strong> Diferentes configuraciones para demos específicos</li>
+                </ul>
+                <p class="text-3xl text-gray-300 mt-10">
+                    Estas herramientas hacen que demostrar escalabilidad sea <strong class="highlight">súper fácil y visual</strong> para cualquier audiencia! 🎯
                 </p>
             </div>
         </div>
